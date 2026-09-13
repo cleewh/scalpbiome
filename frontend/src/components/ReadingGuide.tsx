@@ -45,9 +45,9 @@ const ENTRIES: Entry[] = [
     how: "Distance here is Aitchison distance. PC1 runs healthy on the left to dysbiosis on the right.",
   },
   {
-    part: "Recovery trajectory",
-    what: "P(dysbiotic) as the community is shifted toward the healthy reference.",
-    how: "A geodesic in Aitchison geometry. Simulated direction of travel, not longitudinal data.",
+    part: "Treatment plan",
+    what: "Per-taxon targets that would just carry this sample out of dysbiosis.",
+    how: "Targets are the threshold-crossing point, not the reference, so it asks for the minimum shift that changes the verdict.",
   },
   {
     part: "Classifier",

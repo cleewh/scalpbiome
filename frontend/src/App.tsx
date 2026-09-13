@@ -25,7 +25,7 @@ import { ReferenceRadar } from "./components/ReferenceRadar";
 import { ReadingGuide } from "./components/ReadingGuide";
 import { WaterfallChart } from "./components/WaterfallChart";
 import { OrdinationChart } from "./components/OrdinationChart";
-import { TrajectoryPanel } from "./components/TrajectoryPanel";
+import { TreatmentPlanPanel } from "./components/TreatmentPlanPanel";
 import { PerturbationPanel } from "./components/PerturbationPanel";
 import { InfoBubble } from "./components/InfoBubble";
 import { HELP } from "./helpContent";
@@ -391,9 +391,12 @@ export default function App() {
                 <ReferenceRadar result={result} />
               </div>
 
-              {trajectory && <TrajectoryPanel trajectory={trajectory} />}
-
-              <RecommendationsPanel result={result} />
+              <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+                <RecommendationsPanel result={result} />
+                {trajectory && (
+                  <TreatmentPlanPanel result={result} trajectory={trajectory} />
+                )}
+              </div>
             </>
           ) : (
             <div className="card flex h-64 items-center justify-center text-white/40">

@@ -275,24 +275,31 @@ export const HELP = {
     </>
   ),
 
-  trajectory: (
+  treatmentPlan: (
     <>
       <P>
-        Probability of dysbiosis as the community is shifted step by step from
-        this sample toward the healthy reference. The marker shows where it
-        crosses the decision boundary.
+        Each taxon gets two bars: where it sits now, and the target that would
+        just carry this community across the healthy threshold. The white marker
+        shows the textbook healthy reference.
       </P>
       <P>
-        The path is a <T>geodesic in Aitchison geometry</T>: linear interpolation
-        of CLR coordinates, which in composition space means each step is a
-        weighted geometric mean of the endpoints. Every intermediate point is
-        therefore a valid composition, which a naive blend of percentages would
-        not guarantee.
+        The targets are not the reference values. They are the point at which the
+        classifier stops calling the sample dysbiotic, which is typically{" "}
+        <T>part of the way</T> there — so the plan asks for the minimum shift
+        that changes the verdict, not perfection.
       </P>
       <P>
-        <T>This is a simulated direction of travel.</T> It is not longitudinal
-        data, it does not model any particular treatment, and the crossing point
-        is a property of this model rather than a clinical milestone.
+        Under the hood the community is walked toward the reference along a{" "}
+        <T>geodesic in Aitchison geometry</T>: linear interpolation of CLR
+        coordinates, which in composition space is a weighted geometric mean of
+        the endpoints. That keeps every intermediate point a valid composition,
+        which naively averaging percentages would not.
+      </P>
+      <P>
+        <T>Composition targets, not a clinical protocol.</T> Nothing here
+        specifies a treatment, this is not longitudinal data, and the percentage
+        of correction required is a property of this model rather than a clinical
+        milestone.
       </P>
     </>
   ),
