@@ -86,14 +86,17 @@ export function WaterfallChart({ result }: { result: AnalyzeResponse }) {
             layout="vertical"
             margin={{ top: 4, right: 12, bottom: 4, left: 8 }}
           >
+            {/* Space reserved on the axis rather than nudged with a negative
+                offset, which would overlap the tick row. */}
             <XAxis
               type="number"
               tick={{ fill: "#94a3b8", fontSize: 10 }}
               stroke="rgba(255,255,255,0.15)"
+              height={40}
               label={{
                 value: "dysbiosis log-odds",
                 position: "insideBottom",
-                offset: -2,
+                offset: 0,
                 fill: "#64748b",
                 fontSize: 10,
               }}

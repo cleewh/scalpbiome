@@ -52,20 +52,29 @@ export function OrdinationChart({ ordination, result, trajectory }: Props) {
         helpTitle="Compositional ordination"
       />
 
-      <div className="h-80">
+      <div className="h-96">
         <ResponsiveContainer width="100%" height="100%">
-          <ScatterChart margin={{ top: 8, right: 16, bottom: 16, left: 4 }}>
+          <ScatterChart margin={{ top: 4, right: 18, bottom: 4, left: 6 }}>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+            {/*
+              Axis titles are positioned by reserving space on the axis itself
+              (`height` / `width`) rather than by nudging the label with a
+              negative offset. A negative offset pushes the title down into the
+              tick labels and overlaps them as soon as the container is short,
+              which is exactly what happened here.
+            */}
             <XAxis
               type="number"
               dataKey="x"
               name="PC1"
               tick={{ fill: "#94a3b8", fontSize: 10 }}
               stroke="rgba(255,255,255,0.15)"
+              // Room for the tick row plus the title beneath it.
+              height={46}
               label={{
                 value: `PC1 (${pc1}%) — healthy left, dysbiosis right`,
                 position: "insideBottom",
-                offset: -8,
+                offset: 0,
                 fill: "#64748b",
                 fontSize: 10,
               }}
@@ -76,10 +85,13 @@ export function OrdinationChart({ ordination, result, trajectory }: Props) {
               name="PC2"
               tick={{ fill: "#94a3b8", fontSize: 10 }}
               stroke="rgba(255,255,255,0.15)"
+              // Room for the rotated title plus the tick values.
+              width={54}
               label={{
                 value: `PC2 (${pc2}%)`,
                 angle: -90,
                 position: "insideLeft",
+                offset: 8,
                 fill: "#64748b",
                 fontSize: 10,
               }}
@@ -97,9 +109,21 @@ export function OrdinationChart({ ordination, result, trajectory }: Props) {
               labelStyle={{ color: "#0b1220", fontWeight: 700 }}
               formatter={(v: number) => v.toFixed(2)}
             />
+            {/*
+              Legend moved to the top. With five series it needs two rows at this
+              width, and at the bottom it competed with the axis title for the
+              same strip of pixels.
+            */}
             <Legend
               iconType="circle"
-              wrapperStyle={{ fontSize: 11, color: "#cbd5e1" }}
+              verticalAlign="top"
+              align="center"
+              wrapperStyle={{
+                fontSize: 11,
+                color: "#cbd5e1",
+                paddingBottom: 8,
+                lineHeight: "18px",
+              }}
             />
 
             <Scatter

@@ -55,11 +55,11 @@ export function TrajectoryPanel({
         }
       />
 
-      <div className="h-56">
+      <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
-            margin={{ top: 8, right: 12, bottom: 14, left: 0 }}
+            margin={{ top: 8, right: 12, bottom: 4, left: 0 }}
           >
             <defs>
               <linearGradient id="trajFill" x1="0" y1="0" x2="0" y2="1">
@@ -68,14 +68,17 @@ export function TrajectoryPanel({
               </linearGradient>
             </defs>
             <CartesianGrid stroke="rgba(255,255,255,0.08)" />
+            {/* Space reserved on the axis rather than nudged with a negative
+                offset, which would overlap the tick row. */}
             <XAxis
               dataKey="fraction"
               tick={{ fill: "#94a3b8", fontSize: 10 }}
               stroke="rgba(255,255,255,0.15)"
+              height={42}
               label={{
                 value: "% of the way to the healthy reference",
                 position: "insideBottom",
-                offset: -6,
+                offset: 0,
                 fill: "#64748b",
                 fontSize: 10,
               }}
@@ -84,10 +87,12 @@ export function TrajectoryPanel({
               domain={[0, 100]}
               tick={{ fill: "#94a3b8", fontSize: 10 }}
               stroke="rgba(255,255,255,0.15)"
+              width={58}
               label={{
                 value: "P(dysbiotic) %",
                 angle: -90,
                 position: "insideLeft",
+                offset: 8,
                 fill: "#64748b",
                 fontSize: 10,
               }}
