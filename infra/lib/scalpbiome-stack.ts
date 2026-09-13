@@ -119,16 +119,76 @@ export class ScalpBiomeStack extends cdk.Stack {
     // -----------------------------------------------------------------------
     // Inference Lambda
     // -----------------------------------------------------------------------
-    // A zip package rather than a container image. Dropping pandas brought the
-    // dependency tree to ~179 MB stripped, under Lambda's 250 MB limit, which
-    // removes the Docker requirement entirely: pip cross-downloads Linux/arm64
-    // wheels from any host. Zip packages also cold-start faster than images.
+    const backendDir = path.join(repoRoot, "backend");
+
+    // -----------------------------------------------------------------------
+    // Dependency layer
+    // -----------------------------------------------------------------------
+    // Dependencies (~179 MB) live in a layer, separate from application code
+    // (~150 KB). Bundled together, a one-line edit re-uploads 179 MB; split, it
+    // uploads 150 KB, so deployments take seconds rather than depending on
+    // upload bandwidth.
+    //
+    // The asset source deliberately excludes app code, so the layer's hash
+    // depends only on requirements.txt and the build script. Editing the
+    // application therefore does not rebuild or re-upload the layer.
+    //
+    // A zip layer rather than a container image: pip cross-downloads
+    // Linux/arm64 wheels from any host, so no Docker is required anywhere.
+    const depsLayer = new lambda.LayerVersion(this, "DepsLayer", {
+      description:
+        "ScalpBiome Python dependencies (numpy, scikit-learn, fastapi, mangum).",
+      compatibleRuntimes: [lambda.Runtime.PYTHON_3_12],
+      compatibleArchitectures: [lambda.Architecture.ARM_64],
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      code: lambda.Code.fromAsset(backendDir, {
+        exclude: [
+          // Everything that is not an input to dependency resolution.
+          "app",
+          "lambda_handler.py",
+          "requirements-dev.txt",
+          "sample_data",
+          "verify.py",
+          "run.sh",
+          ".venv",
+          "build",
+          "__pycache__",
+          "*.pyc",
+        ],
+        bundling: {
+          // `local` runs on the host and returns true on success, in which case
+          // CDK never touches Docker. The image is only a fallback for
+          // environments without a working local toolchain.
+          image: cdk.DockerImage.fromRegistry(
+            "public.ecr.aws/sam/build-python3.12:latest"
+          ),
+          command: ["bash", "-c", "./build-lambda-layer.sh /asset-output"],
+          local: {
+            tryBundle(outputDir: string): boolean {
+              const script = path.join(backendDir, "build-lambda-layer.sh");
+              const result = spawnSync("bash", [script, outputDir], {
+                cwd: backendDir,
+                stdio: ["ignore", "inherit", "inherit"],
+              });
+              // Returning false lets CDK fall back to Docker bundling rather
+              // than failing outright.
+              return !result.error && result.status === 0;
+            },
+          },
+        },
+      }),
+    });
+
+    // -----------------------------------------------------------------------
+    // Inference Lambda
+    // -----------------------------------------------------------------------
     const apiFunction = new lambda.Function(this, "ApiFunction", {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: "lambda_handler.handler",
-      code: lambda.Code.fromAsset(path.join(repoRoot, "backend"), {
-        // Excluded from the asset hash so unrelated local files do not force a
-        // rebuild, and so the build output is never nested inside its own input.
+      layers: [depsLayer],
+      // Pure Python source, so no bundling step: the asset is copied as-is and
+      // its hash changes only when application code changes.
+      code: lambda.Code.fromAsset(backendDir, {
         exclude: [
           ".venv",
           "build",
@@ -137,35 +197,9 @@ export class ScalpBiomeStack extends cdk.Stack {
           "sample_data",
           "verify.py",
           "run.sh",
+          "requirements*.txt",
+          "build-lambda-*.sh",
         ],
-        bundling: {
-          // `local` runs on the host and returns true on success, in which case
-          // CDK never touches Docker. The image below is only a fallback for
-          // environments without a working local toolchain.
-          image: cdk.DockerImage.fromRegistry(
-            "public.ecr.aws/sam/build-python3.12:latest"
-          ),
-          command: [
-            "bash",
-            "-c",
-            "./build-lambda-package.sh /asset-output",
-          ],
-          local: {
-            tryBundle(outputDir: string): boolean {
-              const script = path.join(repoRoot, "backend", "build-lambda-package.sh");
-              const result = spawnSync("bash", [script, outputDir], {
-                cwd: path.join(repoRoot, "backend"),
-                stdio: ["ignore", "inherit", "inherit"],
-              });
-              if (result.error || result.status !== 0) {
-                // Returning false lets CDK fall back to Docker bundling rather
-                // than failing outright.
-                return false;
-              }
-              return true;
-            },
-          },
-        },
       }),
       architecture: lambda.Architecture.ARM_64,
       // 2 GB buys proportionally more CPU, which matters because cold start is
