@@ -198,6 +198,143 @@ HEALTHY_REFERENCE: Dict[str, float] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Known levers: what is documented to move a taxon, and how good the evidence is.
+#
+# The app can say which taxa need to move. Saying how to move them is a
+# different and much weaker claim, so every entry carries an explicit evidence
+# tier and, critically, a RESOLUTION: whether the published effect was measured
+# at genus level or resolves to the species this model actually uses.
+#
+# That distinction is the point. Selenium disulfide has interventional evidence
+# for reducing Staphylococcus and raising Cutibacterium, but those studies
+# quantify Staphylococcus spp. as a genus. Since S. capitis and S. epidermidis
+# move in OPPOSITE directions in dandruff (Grimshaw 2019), genus-level evidence
+# cannot tell you which species a treatment suppressed. Presenting it as though
+# it could would overstate the literature.
+#
+# No doses, durations or protocols: mechanism class only. This describes what is
+# known to influence a taxon, not what anyone should do.
+# ---------------------------------------------------------------------------
+
+# Ordinal evidence tiers, strongest first.
+EVIDENCE_TIERS: Dict[str, str] = {
+    "randomised": "Randomised controlled trials",
+    "interventional": "Interventional studies (non-randomised or single-arm)",
+    "observational": "Observational association only",
+    "none": "No established intervention",
+}
+
+
+@dataclass(frozen=True)
+class Lever:
+    """A documented way to move a taxon, with its evidence qualified."""
+
+    # "decrease" or "increase": the direction the evidence supports.
+    direction: str
+    # Mechanism class, never a product recommendation or a dose.
+    mechanism: str
+    # Key of EVIDENCE_TIERS.
+    evidence: str
+    # "species" if the published effect resolves to this modelled taxon,
+    # "genus" if only measured at genus level, "none" if not applicable.
+    resolution: str
+    # What the evidence does and does not support, in plain language.
+    note: str
+    # Short author-year citations.
+    citations: Tuple[str, ...] = ()
+
+
+KNOWN_LEVERS: Dict[str, Lever] = {
+    "M. restricta": Lever(
+        direction="decrease",
+        mechanism="Topical antifungals: azoles, pyrithiones, selenium disulfide",
+        evidence="randomised",
+        resolution="genus",
+        note=(
+            "Reducing Malassezia load and flaking is well supported by randomised "
+            "trials. Those trials measure Malassezia at genus or total-load level, "
+            "so they do not establish an abundance target for M. restricta itself."
+        ),
+        citations=(
+            "Pierard-Franchimont et al. 2002, Skin Pharmacol Appl Skin Physiol",
+            "Schwartz et al. 2013, Int J Cosmet Sci",
+            "Choi et al. 2019, J Dermatolog Treat (systematic review)",
+        ),
+    ),
+    "Cutibacterium": Lever(
+        direction="increase",
+        mechanism="Selenium disulfide shampoo",
+        evidence="interventional",
+        resolution="genus",
+        note=(
+            "Selenium disulfide has been reported to raise Cutibacterium relative "
+            "abundance while lowering Staphylococcus. The evidence is "
+            "interventional rather than randomised, and measured at genus level."
+        ),
+        citations=(
+            "Massiot et al. 2022, J Cosmet Dermatol",
+            "Clavaud et al. 2023, Eur J Dermatol",
+            "Jiang et al. 2026, Front Med (single-arm)",
+        ),
+    ),
+    "S. capitis": Lever(
+        direction="decrease",
+        mechanism="Selenium disulfide shampoo (genus-level effect only)",
+        evidence="interventional",
+        resolution="genus",
+        note=(
+            "Total Staphylococcus has been reduced in intervention studies, but "
+            "those studies quantify the genus. Because S. capitis and "
+            "S. epidermidis move in opposite directions in dandruff, genus-level "
+            "evidence cannot show which species was suppressed. No intervention is "
+            "established as selective for S. capitis."
+        ),
+        citations=(
+            "Massiot et al. 2022, J Cosmet Dermatol",
+            "Jiang et al. 2026, Front Med",
+            "Grimshaw et al. 2019, PLoS ONE (species divergence)",
+        ),
+    ),
+    "S. epidermidis": Lever(
+        direction="increase",
+        mechanism="None established",
+        evidence="none",
+        resolution="none",
+        note=(
+            "No intervention is established to selectively restore S. epidermidis. "
+            "Topical probiotics and microbiome transfer remain experimental and "
+            "have not been shown to reach a scalp abundance target."
+        ),
+        citations=("Grimshaw et al. 2019, PLoS ONE",),
+    ),
+    "M. globosa": Lever(
+        direction="increase",
+        mechanism="None established (behaves as an outcome)",
+        evidence="none",
+        resolution="none",
+        note=(
+            "No intervention aims to raise M. globosa. Its share tends to recover "
+            "as M. restricta is suppressed, so it acts as a consequence of "
+            "rebalancing rather than a target."
+        ),
+        citations=("Grimshaw et al. 2019, PLoS ONE",),
+    ),
+    "Corynebacterium": Lever(
+        direction="increase",
+        mechanism="None established",
+        evidence="none",
+        resolution="none",
+        note=(
+            "No scalp intervention is established to raise Corynebacterium. Its "
+            "recovery is reported alongside broader community rebalancing rather "
+            "than as a treatment target."
+        ),
+        citations=(),
+    ),
+}
+
+
 @dataclass
 class SampleProfile:
     """A named relative-abundance profile."""

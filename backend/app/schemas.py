@@ -80,12 +80,38 @@ class MetricsOut(BaseModel):
     dominant_taxon: str
 
 
+class LeverOut(BaseModel):
+    """What is documented to move a taxon, with the evidence qualified."""
+
+    mechanism: str = Field(
+        ..., description="Mechanism class only. Never a product, dose or protocol."
+    )
+    evidence: str = Field(
+        ..., description="randomised | interventional | observational | none"
+    )
+    evidence_label: str
+    resolution: str = Field(
+        ...,
+        description=(
+            "'species' if the published effect resolves to this taxon, 'genus' if "
+            "only measured at genus level, 'none' if not applicable. Genus-level "
+            "evidence cannot attribute an effect to one species of that genus."
+        ),
+    )
+    note: str
+    citations: List[str]
+
+
 class RecommendationOut(BaseModel):
     taxon: str
     current: float
     target: float
     action: str
     message: str
+    lever: Optional[LeverOut] = Field(
+        default=None,
+        description="Documented means of moving this taxon, if any is established.",
+    )
 
 
 class RadarEntry(BaseModel):

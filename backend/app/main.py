@@ -36,6 +36,7 @@ from .schemas import (
     AnalyzeResponse,
     CompositionEntry,
     DriverOut,
+    LeverOut,
     MetricsOut,
     ModelInfo,
     OrdinationPoint,
@@ -180,6 +181,26 @@ def _driver_explanation(driver: model_mod.Driver) -> str:
     )
 
 
+def _lever_for(taxon: str, action: str) -> LeverOut | None:
+    """Documented means of moving a taxon in the requested direction.
+
+    Returns None when nothing is catalogued, or when the catalogued evidence is
+    for the opposite direction: evidence that a treatment lowers a taxon says
+    nothing about how to raise it.
+    """
+    lever = taxa_mod.KNOWN_LEVERS.get(taxon)
+    if lever is None or lever.direction != action:
+        return None
+    return LeverOut(
+        mechanism=lever.mechanism,
+        evidence=lever.evidence,
+        evidence_label=taxa_mod.EVIDENCE_TIERS[lever.evidence],
+        resolution=lever.resolution,
+        note=lever.note,
+        citations=list(lever.citations),
+    )
+
+
 def _build_analysis(
     vec: List[float],
     sample_name: str,
@@ -273,7 +294,10 @@ def _build_analysis(
         composition=composition,
         drivers=drivers,
         metrics=metrics_out,
-        recommendations=[RecommendationOut(**r.as_dict()) for r in recs],
+        recommendations=[
+            RecommendationOut(**r.as_dict(), lever=_lever_for(r.taxon, r.action))
+            for r in recs
+        ],
         radar=radar,
         waterfall=waterfall,
         ordination=Point(**model.project(vec)),

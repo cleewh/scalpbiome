@@ -296,10 +296,25 @@ export const HELP = {
         which naively averaging percentages would not.
       </P>
       <P>
-        <T>Composition targets, not a clinical protocol.</T> Nothing here
-        specifies a treatment, this is not longitudinal data, and the percentage
-        of correction required is a property of this model rather than a clinical
-        milestone.
+        Each target also shows any <T>known lever</T>: a mechanism class
+        documented to move that taxon, graded by evidence strength. Where nothing
+        is established the panel says so rather than hiding the row, because the
+        absence of a lever is itself the finding.
+      </P>
+      <P>
+        Watch for the <T>genus-level only</T> badge. Selenium disulfide has
+        interventional evidence for lowering <em>Staphylococcus</em> and raising{" "}
+        <em>Cutibacterium</em>, but those studies quantify the genus. Since{" "}
+        <em>S. capitis</em> and <em>S. epidermidis</em> move in opposite
+        directions in dandruff, genus-level evidence cannot show which species a
+        treatment suppressed.
+      </P>
+      <P>
+        <T>Composition targets, not a clinical protocol.</T> Levers name a
+        mechanism class, never a product, dose or course of treatment. No
+        intervention is established to reach a specific abundance, this is not
+        longitudinal data, and the percentage of correction required is a
+        property of this model rather than a clinical milestone.
       </P>
     </>
   ),

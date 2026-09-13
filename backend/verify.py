@@ -194,6 +194,59 @@ check(
 )
 
 # ---------------------------------------------------------------------------
+section("6b. Intervention claims are evidence-graded and not overstated")
+# ---------------------------------------------------------------------------
+# Guards against the failure mode where a plausible-sounding intervention gets
+# attached to a taxon without qualifying what the literature actually shows.
+for name, lever in taxa.KNOWN_LEVERS.items():
+    check(name in taxa.TAXA, f"{name}: lever refers to a modelled taxon")
+    check(
+        lever.evidence in taxa.EVIDENCE_TIERS,
+        f"{name}: evidence tier '{lever.evidence}' is a declared tier",
+    )
+    check(
+        lever.direction in ("increase", "decrease"),
+        f"{name}: direction is explicit ({lever.direction})",
+    )
+    check(
+        lever.resolution in ("species", "genus", "none"),
+        f"{name}: resolution declared ({lever.resolution})",
+    )
+    # A claim backed by evidence must cite something.
+    if lever.evidence != "none":
+        check(
+            len(lever.citations) > 0,
+            f"{name}: non-empty evidence tier carries citations",
+        )
+    # No doses, products or protocols anywhere in the catalogue.
+    blob = f"{lever.mechanism} {lever.note}".lower()
+    for banned in ("mg", "%", "twice daily", "once daily", "apply ", "prescrib"):
+        check(banned not in blob, f"{name}: mechanism states no dose/protocol ('{banned}')")
+
+# The load-bearing scientific point: genus-level evidence must not be presented
+# as species-specific for a genus whose species diverge.
+for species in ("S. capitis", "S. epidermidis"):
+    lever = taxa.KNOWN_LEVERS.get(species)
+    if lever and lever.evidence != "none":
+        check(
+            lever.resolution == "genus",
+            f"{species}: genus-level evidence is labelled as such, not as species-level",
+        )
+        check(
+            "genus" in lever.note.lower(),
+            f"{species}: note explains the genus/species limitation",
+        )
+
+check(
+    taxa.KNOWN_LEVERS["S. epidermidis"].evidence == "none",
+    "no intervention is claimed to selectively restore S. epidermidis",
+)
+check(
+    taxa.KNOWN_LEVERS["M. restricta"].evidence == "randomised",
+    "antifungal reduction of Malassezia is the one randomised-evidence claim",
+)
+
+# ---------------------------------------------------------------------------
 section("7. Ratio edge cases")
 # ---------------------------------------------------------------------------
 no_staph, _ = taxa.to_vector(

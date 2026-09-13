@@ -69,13 +69,63 @@ export interface Metrics {
   dominant_taxon: string;
 }
 
+export type EvidenceTier =
+  | "randomised"
+  | "interventional"
+  | "observational"
+  | "none";
+
+/** What is documented to move a taxon, with the evidence qualified. */
+export interface Lever {
+  /** Mechanism class only. Never a product, dose or protocol. */
+  mechanism: string;
+  evidence: EvidenceTier;
+  evidence_label: string;
+  /**
+   * "species" if the published effect resolves to this taxon, "genus" if only
+   * measured at genus level. Genus-level evidence cannot attribute an effect to
+   * one species of that genus.
+   */
+  resolution: "species" | "genus" | "none";
+  note: string;
+  citations: string[];
+}
+
 export interface Recommendation {
   taxon: string;
   current: number;
   target: number;
   action: "increase" | "decrease";
   message: string;
+  lever: Lever | null;
 }
+
+/** Colour and label per evidence tier, strongest first. */
+export const EVIDENCE_STYLE: Record<
+  EvidenceTier,
+  { label: string; colour: string; background: string }
+> = {
+  randomised: {
+    label: "randomised trials",
+    colour: "#5eead4",
+    background: "rgba(45,212,191,0.16)",
+  },
+  interventional: {
+    label: "interventional",
+    colour: "#93c5fd",
+    background: "rgba(96,165,250,0.16)",
+  },
+  observational: {
+    label: "observational",
+    colour: "#fcd34d",
+    background: "rgba(251,191,36,0.16)",
+  },
+  none: {
+    label: "none established",
+    colour: "#cbd5e1",
+    background: "rgba(148,163,184,0.16)",
+  },
+};
 
 export interface RadarEntry {
   taxon: string;

@@ -1,5 +1,6 @@
 import { Area, AreaChart, ReferenceLine, ResponsiveContainer } from "recharts";
 import {
+  EVIDENCE_STYLE,
   taxonColor,
   type AnalyzeResponse,
   type TrajectoryResponse,
@@ -44,6 +45,7 @@ export function TreatmentPlanPanel({ result, trajectory }: Props) {
     // Target that just clears the threshold, read off the trajectory.
     enough: crossing?.composition[r.taxon] ?? r.target,
     reference: r.target,
+    lever: r.lever,
   }));
 
   // Shared scale so bar lengths are comparable between taxa.
@@ -163,10 +165,52 @@ export function TreatmentPlanPanel({ result, trajectory }: Props) {
                   </div>
                   <p className="mt-1 text-[11px] text-white/40">
                     healthy reference {(r.reference * 100).toFixed(1)}%
-                    <span className="ml-1 text-white/30">
-                      (white marker)
-                    </span>
+                    <span className="ml-1 text-white/30">(white marker)</span>
                   </p>
+
+                  {/*
+                    How the taxon could be moved, with the evidence graded.
+                    Deliberately shows "none established" rather than omitting
+                    the row: the absence of a lever is itself the finding for
+                    three of these taxa.
+                  */}
+                  {r.lever && (
+                    <div className="mt-2 rounded-lg border border-white/10 bg-white/[0.02] p-2.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-white/45">
+                          known lever
+                        </span>
+                        <span
+                          className="pill text-[10px] font-bold uppercase tracking-wide"
+                          style={{
+                            color: EVIDENCE_STYLE[r.lever.evidence].colour,
+                            background:
+                              EVIDENCE_STYLE[r.lever.evidence].background,
+                          }}
+                        >
+                          {EVIDENCE_STYLE[r.lever.evidence].label}
+                        </span>
+                        {/* Genus-level evidence cannot be attributed to one
+                            species of that genus. Say so on the badge. */}
+                        {r.lever.resolution === "genus" && (
+                          <span className="pill bg-white/10 text-[10px] font-bold uppercase tracking-wide text-white/60">
+                            genus-level only
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1.5 text-[12px] font-medium leading-snug text-white/80">
+                        {r.lever.mechanism}
+                      </p>
+                      <p className="mt-1 text-[11px] leading-snug text-white/50">
+                        {r.lever.note}
+                      </p>
+                      {r.lever.citations.length > 0 && (
+                        <p className="mt-1.5 text-[10px] leading-snug text-white/35">
+                          {r.lever.citations.join(" · ")}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </li>
               );
             })}
@@ -230,9 +274,12 @@ export function TreatmentPlanPanel({ result, trajectory }: Props) {
       )}
 
       <p className="mt-4 border-t border-white/10 pt-3 text-[11px] leading-snug text-white/40">
-        Composition targets, not a clinical protocol. Nothing here specifies a
-        treatment, and the {effortPct || 0}% figure is a property of this model
-        rather than a clinical milestone.
+        Composition targets, not a clinical protocol. Levers name a mechanism
+        class that is <span className="font-semibold">documented to influence</span>{" "}
+        a taxon, never a product, dose or course of treatment, and no intervention
+        is established to reach a specific abundance. The{" "}
+        {effortPct || 0}% figure is a property of this model rather than a
+        clinical milestone.
       </p>
     </div>
   );
