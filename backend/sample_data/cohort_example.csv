@@ -1,0 +1,10 @@
+taxon,Subject_01,Subject_02,Subject_03,Subject_04,Subject_05
+Cutibacterium acnes,0.505,0.398,0.104,0.472,0.331
+Staphylococcus epidermidis,0.094,0.066,0.048,0.085,0.058
+Staphylococcus capitis,0.112,0.271,0.455,0.126,0.229
+Malassezia restricta,0.071,0.118,0.146,0.080,0.196
+Malassezia globosa,0.047,0.028,0.019,0.043,0.041
+Corynebacterium,0.052,0.038,0.016,0.048,0.041
+Streptococcus,0.019,0.021,0.006,0.022,0.016
+Micrococcus,0.021,0.014,0.005,0.019,0.014
+Other,0.079,0.046,0.201,0.105,0.074

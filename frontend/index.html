@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Scalp and skin microbiome health analyzer: classifies a taxonomic abundance profile as healthy or dysbiotic and explains why."
+    />
+    <title>ScalpBiome — Scalp Microbiome Analyzer</title>
+    <!--
+      Deliberately no webfont CDN. Using the system font stack removes a
+      third-party origin, which keeps the Content-Security-Policy tight
+      (no external style-src or font-src), avoids sending visitor requests to a
+      third party, and removes a render-blocking dependency.
+    -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

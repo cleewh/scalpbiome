@@ -1,0 +1,9 @@
+-r requirements.txt
+# Local development server. Lambda uses Mangum instead.
+uvicorn[standard]==0.34.0
+# Needed by fastapi.testclient.
+httpx==0.28.1
+# Only for exercising the real boto3 S3 path locally against a mock. The shipped
+# HealthOmics demo does not need it: it injects an in-memory reader instead.
+boto3==1.36.11
+moto[s3]==5.0.28

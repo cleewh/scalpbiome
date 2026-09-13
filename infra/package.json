@@ -1,0 +1,26 @@
+{
+  "name": "scalpbiome-infra",
+  "version": "1.0.0",
+  "private": true,
+  "bin": {
+    "scalpbiome": "bin/scalpbiome.js"
+  },
+  "scripts": {
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy --all",
+    "destroy": "cdk destroy --all",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "aws-cdk": "2.1126.0",
+    "cdk-nag": "^2.35.82",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.219.0",
+    "constructs": "^10.4.2"
+  }
+}

@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(
+      1200px 600px at 15% -10%,
+      rgba(129, 140, 248, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      1000px 500px at 100% 0%,
+      rgba(45, 212, 191, 0.12),
+      transparent 55%
+    ),
+    #0a0f1e;
+  color: #e5e9f5;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-white/10 bg-base-800/70 p-6 shadow-card backdrop-blur;
+  }
+  .card-title {
+    @apply text-sm font-semibold uppercase tracking-widest text-white/50;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium;
+  }
+}
+
+/* Subtle entrance animation for result cards. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise 0.45s ease-out both;
+}

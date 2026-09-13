@@ -1,0 +1,16 @@
+# Runtime dependencies. These are what ship to Lambda.
+#
+# Deliberately excluded:
+#   pandas  - only used for CSV parsing, replaced by app/tables.py (stdlib csv).
+#             Removing it saves ~60 MB, which is what allows a zip deployment
+#             package instead of a container image.
+#   boto3   - provided by the Lambda runtime, and only needed on the S3 ingest
+#             path, which is disabled by default.
+#   moto    - no longer needed; the HealthOmics demo injects an in-memory reader.
+fastapi==0.115.6
+pydantic==2.10.5
+scikit-learn==1.6.1
+numpy==2.2.2
+python-multipart==0.0.20
+# Lambda <-> ASGI adapter. Unused when running under uvicorn locally.
+mangum==0.19.0
