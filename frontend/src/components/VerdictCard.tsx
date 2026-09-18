@@ -6,7 +6,11 @@ import { HELP } from "../helpContent";
 // verdict with a confidence meter, sized to read from the back of a room.
 export function VerdictCard({ result }: { result: AnalyzeResponse }) {
   const healthy = result.label === "Healthy";
-  const confidencePct = Math.round(result.confidence * 100);
+  const confidencePct = result.confidence * 100;
+  // One decimal, deliberately. Rounding 99.8% to "100%" reads as certainty the
+  // model is not entitled to, and a probability of exactly 1 is not something a
+  // logistic model produces.
+  const confidenceLabel = confidencePct.toFixed(1);
   const accent = healthy ? "text-healthy" : "text-dysbiotic";
   const ring = healthy ? "border-healthy/40" : "border-dysbiotic/40";
   const barColor = healthy ? "bg-healthy" : "bg-dysbiotic";
@@ -45,15 +49,15 @@ export function VerdictCard({ result }: { result: AnalyzeResponse }) {
       <div className="mt-6">
         <div className="flex items-center justify-between text-sm text-white/60">
           <span>Model confidence</span>
-          <span className={`font-semibold ${accent}`}>{confidencePct}%</span>
+          <span className={`font-semibold ${accent}`}>{confidenceLabel}%</span>
         </div>
         <div
           className="mt-2 h-3 w-full overflow-hidden rounded-full bg-white/10"
           role="meter"
-          aria-valuenow={confidencePct}
+          aria-valuenow={Number(confidenceLabel)}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`Model confidence ${confidencePct} percent`}
+          aria-label={`Model confidence ${confidenceLabel} percent`}
         >
           <div
             className={`h-full rounded-full ${barColor} transition-all duration-700`}
@@ -61,8 +65,8 @@ export function VerdictCard({ result }: { result: AnalyzeResponse }) {
           />
         </div>
         <div className="mt-3 flex justify-between text-xs text-white/45">
-          <span>Healthy {Math.round(result.prob_healthy * 100)}%</span>
-          <span>Dysbiotic {Math.round(result.prob_dysbiotic * 100)}%</span>
+          <span>Healthy {(result.prob_healthy * 100).toFixed(1)}%</span>
+          <span>Dysbiotic {(result.prob_dysbiotic * 100).toFixed(1)}%</span>
         </div>
         <p className="mt-3 border-t border-white/10 pt-3 text-[11px] leading-snug text-white/40">
           Confidence is distance from the decision boundary, not biological

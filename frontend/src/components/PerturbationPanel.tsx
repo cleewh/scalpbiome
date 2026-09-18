@@ -167,32 +167,41 @@ export function PerturbationPanel({
           const color = taxonColor(taxon);
           return (
             <div key={taxon}>
+              {/*
+                Two rows rather than one. At the 300px rail width a single row of
+                taxon name + risk badge + value + reference overflowed, and the
+                reference figure was clipped off the right edge.
+              */}
               <div className="flex items-center justify-between gap-2">
                 <label
                   htmlFor={`slider-${taxon}`}
-                  className="flex items-center gap-2 text-sm font-semibold text-white"
+                  className="flex min-w-0 items-center gap-1.5 text-sm font-semibold text-white"
                 >
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ background: color }}
                     aria-hidden
                   />
-                  {taxon}
-                  <span
-                    className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
-                    style={{
-                      color: risk ? "#fda4af" : "#5eead4",
-                      background: risk
-                        ? "rgba(251,113,133,0.16)"
-                        : "rgba(45,212,191,0.16)",
-                    }}
-                  >
-                    {risk ? "risk" : "protective"}
-                  </span>
+                  <span className="truncate">{taxon}</span>
                 </label>
-                <span className="shrink-0 font-mono text-xs text-white/70">
+                <span className="shrink-0 font-mono text-sm font-semibold text-white">
                   {pct.toFixed(1)}%
-                  <span className="ml-1 text-white/35">ref {refPct.toFixed(1)}%</span>
+                </span>
+              </div>
+              <div className="mt-0.5 flex items-center justify-between gap-2">
+                <span
+                  className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide"
+                  style={{
+                    color: risk ? "#fda4af" : "#5eead4",
+                    background: risk
+                      ? "rgba(251,113,133,0.16)"
+                      : "rgba(45,212,191,0.16)",
+                  }}
+                >
+                  {risk ? "risk" : "protective"}
+                </span>
+                <span className="shrink-0 font-mono text-[11px] text-white/40">
+                  ref {refPct.toFixed(1)}%
                 </span>
               </div>
               <input

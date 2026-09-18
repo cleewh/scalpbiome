@@ -164,14 +164,44 @@ export function OrdinationChart({ ordination, result, trajectory }: Props) {
               shape="cross"
               isAnimationActive={false}
             />
+            {/*
+              Custom marker for the current sample. The default shape at the
+              shared ZAxis size was indistinguishable among 280 background
+              points, and finding the sample is the whole purpose of the plot.
+              Drawn as a ringed dot with a halo so it reads at projector distance.
+            */}
             <Scatter
               name="This sample"
               data={sample}
-              fill={result.label === "Healthy" ? "#5eead4" : "#fda4af"}
-              stroke="#ffffff"
-              strokeWidth={2}
-              shape="star"
               isAnimationActive={false}
+              legendType="circle"
+              fill={result.label === "Healthy" ? "#5eead4" : "#fda4af"}
+              shape={(props: { cx?: number; cy?: number }) => {
+                const { cx, cy } = props;
+                if (cx == null || cy == null) return <g />;
+                const colour = result.label === "Healthy" ? "#5eead4" : "#fda4af";
+                return (
+                  <g>
+                    <circle cx={cx} cy={cy} r={13} fill={colour} fillOpacity={0.2} />
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={7}
+                      fill={colour}
+                      stroke="#0a0f1e"
+                      strokeWidth={2.5}
+                    />
+                    <circle
+                      cx={cx}
+                      cy={cy}
+                      r={9.5}
+                      fill="none"
+                      stroke="#ffffff"
+                      strokeWidth={1.75}
+                    />
+                  </g>
+                );
+              }}
             />
           </ScatterChart>
         </ResponsiveContainer>
